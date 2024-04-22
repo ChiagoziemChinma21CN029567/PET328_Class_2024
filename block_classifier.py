@@ -1,21 +1,38 @@
-#TTOWG
+def classify_block(co2_comp, n2_comp, h2s_comp, h2o_comp, gas_gravity):
+    # the if statement
 
-# A script to classify gridblocks in a discretized
-# oil reservoir; based on the position of the gridblock
-# relative to the reservoir boundaries.
+    if co2_comp > 0.12 or n2_comp > 0.03 or h2s_comp > 0:
+        gas_gravity = (gas_gravity - (1.1767*h2s_comp) - \
+                          (1.5196*co2_comp) - (0.9672*n2_comp) - \
+                           (0.622*h2o_comp))/(1- h2s_comp - co2_comp - n2_comp - h2o_comp)
+        print('The corrected gas gravity is', gas_gravity)
 
-# Receive inputs from user:
-i = int(input('What is the column index of the gridblock?'))
-j = int(input('What is the row index of the gridblock?'))
-nx = int(input('How may columns are there in the discerized reservoir?'))
-ny = int(input('How may rows are there in the discerized reservoir?'))
+    # continuing after the if block
 
-# Classify gridblock
-if (i == 1 and j == 1) or (i == 1 and j == ny) or (i == nx and j == 1) or (i == nx and j == ny):
-    block_cat = 'IV'
-elif j==1 or j==ny:
-    block_cat = 'II'
-elif i==1 or i==nx:
-    block_cat = 'III'
-else:
-    block_cat = 'I'
+    # computing pseudo-critical pressure and temperature of the hydrocarbon mixture
+
+    p_pch = 756.8 - (131*gas_gravity) - (3.6*gas_gravity**2)
+    t_pch = 169.2 + (349.5*gas_gravity) - (74.0*gas_gravity**2)
+
+    # displaying the results.
+    block_cat = {'p_pch': p_pch, 't_pch': t_pch}
+    return block_cat
+
+# input statements
+co2_comp = input('What is the CO2 composition?')
+n2_comp = input('What is the n2 composition?')
+h2s_comp = input('What is the h2s composition?')
+h2o_comp = input('What is the h2o composition?')
+gas_gravity = input('What is the measured gas gravity?')
+
+# convert inputs to numerals
+co2_comp = float(co2_comp)
+n2_comp = float(n2_comp)
+h2s_comp = float(h2s_comp)
+h2o_comp = float(h2o_comp)
+gas_gravity = float(gas_gravity)
+
+# call the function
+block_cat = classify_block(co2_comp, n2_comp, h2s_comp, h2o_comp, gas_gravity)
+print('The hydrocarbon pseudo-critical pressure is {0:.2f} psia'.format(block_cat['p_pch']))
+print('The hydrocarbon pseudo-critical temperature is {0:.2f} deg Rankine'.format(block_cat['t_pch']))
